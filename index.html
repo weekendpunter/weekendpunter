@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+<title>Weekend Punter · Dutching with Journal</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: #f3f4f6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 16px;
+  }
+  .app {
+    max-width: 900px;
+    width: 100%;
+    background: white;
+    border-radius: 32px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    padding: 24px 16px 32px;
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .header h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  
+  .race-input-area {
+    background: #f1f5f9;
+    border-radius: 24px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .race-fields {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .race-field {
+    flex: 1;
+    min-width: 120px;
+  }
+  .race-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .race-field input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid white;
+    border-radius: 40px;
+    font-size: 15px;
+    font-weight: 500;
+    background: white;
+    transition: all 0.1s ease;
+  }
+  .race-field input:focus {
+    outline: none;
+    border-color: #059669;
+  }
+  .race-display {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed #cbd5e1;
+    font-size: 16px;
+    font-weight: 600;
+    color: #059669;
+    text-align: center;
+  }
+  
+  .bet-type-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .toggle-btn {
+    padding: 10px 24px;
+    border-radius: 40px;
+    border: 2px solid #e2e8f0;
+    background: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.1s ease;
+  }
+  .toggle-btn.active {
+    background: #059669;
+    color: white;
+    border-color: #059669;
+  }
+  .toggle-btn.win.active { background: #3b82f6; }
+
+  .horse-grid {
+    background: white;
+    border-radius: 20px;
+    padding: 16px 12px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 20px;
+  }
+  .grid-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #334155;
+  }
+  .reset-btn {
+    background: none;
+    border: none;
+    color: #64748b;
+    text-decoration: underline;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  
+  .headers-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 0;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .header-number { width: 38px; }
+  .header-name { width: 120px; }
+  .header-win { width: 70px; text-align: center; }
+  .header-place { width: 70px; text-align: center; }
+  
+  .horse-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    padding: 8px 0;
+    border-bottom: 1px dashed #e2e8f0;
+  }
+  .horse-number {
+    font-weight: 600;
+    color: #0f172a;
+    min-width: 38px;
+  }
+  .horse-name-input {
+    width: 120px;
+    padding: 6px 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 20px;
+    font-size: 13px;
+  }
+  .win-input, .place-input {
+    width: 70px;
+    padding: 6px;
+    border: 1px solid #cbd5e1;
+    border-radius: 20px;
+    font-size: 13px;
+    text-align: right;
+  }
+  .win-input:focus { outline: none; border-color: #3b82f6; }
+  .place-input:focus { outline: none; border-color: #059669; }
+
+  .strategies-container {
+    display: flex;
+    gap: 16px;
+    margin: 30px 0;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .strategy-card {
+    flex: 1;
+    min-width: 250px;
+    max-width: 280px;
+    background: white;
+    border-radius: 28px;
+    padding: 20px 16px;
+    border-left-width: 8px;
+    border-left-style: solid;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease;
+    cursor: pointer;
+  }
+  .strategy-card:hover { transform: translateY(-4px); }
+  .strategy-card.cautious { border-left-color: #3b82f6; }
+  .strategy-card.medium { border-left-color: #f59e0b; }
+  .strategy-card.bold { border-left-color: #f97316; }
+  
+  .strategy-icon { font-size: 32px; margin-bottom: 8px; }
+  .strategy-name { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .strategy-desc { font-size: 12px; color: #64748b; margin-bottom: 16px; }
+  
+  .horse-list { margin: 12px 0; }
+  .horse-list-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 14px;
+    border-bottom: 1px dashed #f1f5f9;
+  }
+  
+  .profit-box {
+    background: #f0fdf4;
+    border-radius: 16px;
+    padding: 12px;
+    margin: 16px 0;
+    text-align: center;
+  }
+  .profit-amount {
+    font-size: 28px;
+    font-weight: 800;
+    color: #059669;
+  }
+  
+  .action-btn {
+    width: 100%;
+    background: #059669;
+    color: white;
+    border: none;
+    border-radius: 40px;
+    padding: 18px;
+    font-weight: 700;
+    font-size: 18px;
+    cursor: pointer;
+    margin: 20px 0;
+  }
+  .action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .selected-panel {
+    background: #f0f9ff;
+    border: 2px solid #059669;
+    border-radius: 24px;
+    padding: 24px;
+    margin: 20px 0;
+  }
+  
+  .save-bet-btn {
+    width: 100%;
+    background: #8b5cf6;
+    color: white;
+    border: none;
+    border-radius: 40px;
+    padding: 14px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: all 0.1s ease;
+  }
+  .save-bet-btn:hover { background: #7c3aed; }
+
+  /* Fun Limit Section */
+  .fun-limit-section {
+    margin-top: 30px;
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: 24px;
+    padding: 20px;
+  }
+  
+  /* Journal Section */
+  .journal-section {
+    margin-top: 40px;
+    background: white;
+    border: 2px solid #8b5cf6;
+    border-radius: 24px;
+    padding: 20px;
+  }
+  .journal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .journal-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .journal-actions {
+    display: flex;
+    gap: 10px;
+  }
+  .journal-btn {
+    background: #f1f5f9;
+    border: none;
+    border-radius: 40px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .journal-btn:hover { background: #e2e8f0; }
+  
+  /* Summary Cards */
+  .summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .summary-card {
+    background: #f8fafc;
+    border-radius: 20px;
+    padding: 16px;
+    text-align: center;
+  }
+  .summary-label {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 4px;
+  }
+  .summary-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  .summary-value.profit { color: #059669; }
+  .summary-value.loss { color: #dc2626; }
+  
+  /* Chart */
+  .chart-container {
+    background: #f8fafc;
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 24px;
+    height: 200px;
+    position: relative;
+  }
+  .chart-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 150px;
+    margin-top: 20px;
+  }
+  .chart-bar {
+    flex: 1;
+    background: #8b5cf6;
+    border-radius: 8px 8px 0 0;
+    min-width: 30px;
+    transition: height 0.3s ease;
+    position: relative;
+  }
+  .chart-bar.positive { background: #059669; }
+  .chart-bar.negative { background: #dc2626; }
+  .chart-label {
+    text-align: center;
+    font-size: 10px;
+    color: #64748b;
+    margin-top: 4px;
+  }
+  
+  /* Bet Entries */
+  .bet-entry {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .bet-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .bet-date {
+    font-weight: 600;
+    color: #475569;
+  }
+  .bet-race {
+    color: #059669;
+    font-weight: 600;
+  }
+  .bet-details {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    font-size: 14px;
+  }
+  .bet-horses {
+    color: #1e293b;
+  }
+  .bet-stake {
+    font-weight: 600;
+  }
+  .bet-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .win-btn {
+    background: #059669;
+    color: white;
+    border: none;
+    border-radius: 40px;
+    padding: 8px 20px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .loss-btn {
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 40px;
+    padding: 8px 20px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .return-input {
+    width: 100px;
+    padding: 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 40px;
+    text-align: center;
+  }
+  .bet-result {
+    font-weight: 700;
+  }
+  .result-win { color: #059669; }
+  .result-loss { color: #dc2626; }
+  
+  .footer-stats {
+    display: flex;
+    justify-content: space-between;
+    background: #1e293b;
+    border-radius: 30px;
+    padding: 18px 20px;
+    color: white;
+    margin-top: 10px;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e293b;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 40px;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 1000;
+  }
+  .toast.show { opacity: 1; }
+  
+  .fun-note {
+    text-align: center;
+    font-size: 13px;
+    color: #64748b;
+    margin-top: 20px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h2>🏇 Weekend Punter · Dutching Journal</h2>
+  </div>
+
+  <!-- Race Input -->
+  <div class="race-input-area">
+    <div class="race-fields">
+      <div class="race-field">
+        <label>🏁 Race #</label>
+        <input type="text" id="raceNumber" placeholder="e.g., 7" value="7">
+      </div>
+      <div class="race-field">
+        <label>📍 Track</label>
+        <input type="text" id="raceLocation" placeholder="e.g., Flemington" value="Flemington">
+      </div>
+    </div>
+    <div class="race-display" id="raceDisplay">
+      🏁 Race 7 @ Flemington
+    </div>
+  </div>
+
+  <!-- Bet Type Toggle -->
+  <div class="bet-type-toggle">
+    <button class="toggle-btn place active" id="placeToggle">📍 Place (Top 3)</button>
+    <button class="toggle-btn win" id="winToggle">🎯 Win (1st only)</button>
+  </div>
+
+  <!-- Main Content -->
+  <div id="mainContent"></div>
+
+  <!-- Analyze Button -->
+  <button class="action-btn" id="analyzeBtn">🔍 ANALYZE STRATEGIES</button>
+
+  <!-- Strategies Container -->
+  <div id="strategiesContainer" class="strategies-container"></div>
+  
+  <!-- Selected Panel -->
+  <div id="selectedPanel" class="selected-panel" style="display: none;"></div>
+
+  <!-- Fun Limit Section -->
+  <div class="fun-limit-section">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+      <span style="font-size: 28px;">🎮</span>
+      <span style="font-weight: 700; font-size: 18px;">My Fun Limit</span>
+    </div>
+    <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
+      <div style="flex: 1; min-width: 150px;">
+        <label style="font-size: 13px; color: #665218; display: block; margin-bottom: 5px;">💰 Weekly fun budget</label>
+        <input type="number" id="funLimitAmount" value="50" min="10" max="500" step="5"
+               style="width: 100%; padding: 14px; border: 2px solid #ffc107; border-radius: 40px; font-size: 16px; font-weight: 600;">
+      </div>
+      <div>
+        <button id="setFunLimitBtn" style="background: #ffc107; color: #1e293b; border: none; border-radius: 40px; padding: 14px 24px; font-weight: 700; cursor: pointer;">
+          🎯 Set Limit
+        </button>
+      </div>
+    </div>
+    <div id="funLimitStatus" style="margin-top: 16px; padding: 12px; background: white; border-radius: 40px; display: none;"></div>
+    <div id="funLimitWarning" style="display: none; margin-top: 16px; background: #fee2e2; border-radius: 40px; padding: 12px; color: #b91c1c;"></div>
+  </div>
+
+  <!-- JOURNAL SECTION - Bottom of main page -->
+  <div id="journalSection" class="journal-section">
+    <div class="journal-header">
+      <div class="journal-title">
+        <span>📓</span> My Betting Journal
+      </div>
+      <div class="journal-actions">
+        <button class="journal-btn" id="exportJournalBtn">📋 Copy to Clipboard</button>
+        <button class="journal-btn" id="clearJournalBtn">🗑️ Clear All</button>
+      </div>
+    </div>
+    
+    <!-- Summary Cards -->
+    <div id="summaryCards" class="summary-cards">
+      <div class="summary-card">
+        <div class="summary-label">Total Bets</div>
+        <div class="summary-value" id="totalBets">0</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Wins</div>
+        <div class="summary-value" id="totalWins">0</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Losses</div>
+        <div class="summary-value" id="totalLosses">0</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Win Rate</div>
+        <div class="summary-value" id="winRate">0%</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Total P/L</div>
+        <div class="summary-value" id="totalProfit">$0</div>
+      </div>
+    </div>
+    
+    <!-- Chart - Shows after 1+ bets -->
+    <div id="chartContainer" class="chart-container" style="display: none;">
+      <div style="font-weight: 600; margin-bottom: 10px;">📈 Profit/Loss Trend</div>
+      <div id="chartBars" class="chart-bars"></div>
+    </div>
+    
+    <!-- Bet Entries -->
+    <div id="journalEntries"></div>
+    <div id="emptyJournal" style="text-align: center; padding: 40px; color: #94a3b8;">
+      No bets saved yet. Select a strategy and click "Save to Journal"!
+    </div>
+  </div>
+
+  <!-- Footer Stats -->
+  <div class="footer-stats">
+    <div><span style="color: #94a3b8;">Budget</span><br><span style="font-size: 24px; font-weight: 700;" id="totalBudget">$30</span></div>
+    <div><span style="color: #94a3b8;">Best Profit</span><br><span style="font-size: 24px; font-weight: 700; color: #4ade80;" id="bestProfit">$0</span></div>
+  </div>
+  
+  <div class="fun-note">
+    🎉 Save bets to your journal, track results, and see your profit over time!
+  </div>
+
+  <div id="toast" class="toast"></div>
+</div>
+
+<script>
+(function() {
+  const CONFIG = {
+    maxHorses: 14,
+    nameMaxLength: 15,
+    defaultBudget: 30,
+    minProfit: 0.50
+  };
+
+  let currentRace = { horses: [] };
+  let totalBudget = CONFIG.defaultBudget;
+  let betType = 'place';
+  let selectedStrategy = null;
+  
+  // Fun limit variables
+  let funLimit = 50;
+  let funUsed = 0;
+  let funLimitActive = false;
+
+  // Initialize horses
+  for (let i = 1; i <= CONFIG.maxHorses; i++) {
+    currentRace.horses.push({
+      number: i,
+      name: '',
+      winOdds: null,
+      placeOdds: null
+    });
+  }
+
+  // ==================== UTILITY FUNCTIONS ====================
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  function getRaceName() {
+    const raceNum = document.getElementById('raceNumber').value || '?';
+    const raceLoc = document.getElementById('raceLocation').value || 'the track';
+    return `Race ${raceNum} @ ${raceLoc}`;
+  }
+
+  function updateRaceDisplay() {
+    document.getElementById('raceDisplay').textContent = `🏁 ${getRaceName()}`;
+  }
+
+  function getOdds(horse) {
+    return betType === 'place' ? horse.placeOdds : horse.winOdds;
+  }
+
+  function getValidHorses() {
+    return currentRace.horses
+      .filter(h => {
+        const odds = getOdds(h);
+        return odds && odds > 0;
+      })
+      .sort((a, b) => getOdds(a) - getOdds(b));
+  }
+
+  function truncateName(name) {
+    if (!name) return '';
+    return name.length > CONFIG.nameMaxLength ? name.substring(0, CONFIG.nameMaxLength) + '…' : name;
+  }
+
+  // ==================== DUTCHING CALCULATIONS ====================
+  function calculateDutching(horses) {
+    if (horses.length < 2) return null;
+    
+    const totalReciprocal = horses.reduce((sum, h) => sum + (1 / getOdds(h)), 0);
+    let totalStake = 0;
+    const stakes = horses.map(horse => {
+      const odds = getOdds(horse);
+      const stake = (totalBudget / odds) / totalReciprocal;
+      totalStake += stake;
+      return { 
+        horse, 
+        stake, 
+        return: stake * odds,
+        odds 
+      };
+    });
+    
+    const returnIfWins = stakes.length ? stakes[0].return : 0;
+    const profit = returnIfWins - totalStake;
+    
+    return {
+      stakes,
+      totalStake,
+      returnIfWins,
+      profit,
+      profitPercent: (profit / totalStake) * 100,
+      horses
+    };
+  }
+
+  function findBestForStrategy(candidates, minHorses = 2, maxHorses = 4) {
+    if (candidates.length < minHorses) return null;
+    
+    let bestResult = null;
+    let bestProfit = -Infinity;
+    
+    for (let numHorses = Math.min(maxHorses, candidates.length); numHorses >= minHorses; numHorses--) {
+      const testHorses = candidates.slice(0, numHorses);
+      const result = calculateDutching(testHorses);
+      
+      if (result && result.profit > bestProfit && result.profit > CONFIG.minProfit) {
+        bestProfit = result.profit;
+        bestResult = result;
+      }
+    }
+    
+    return bestResult;
+  }
+
+  function generateStrategies() {
+    const validHorses = getValidHorses();
+    
+    if (validHorses.length < 2) {
+      showToast(`Need at least 2 horses with ${betType} odds`);
+      return { cautious: null, medium: null, bold: null };
+    }
+
+    let lowThreshold, midThreshold;
+    if (betType === 'place') {
+      lowThreshold = 3.5;
+      midThreshold = 5.5;
+    } else {
+      lowThreshold = 5.0;
+      midThreshold = 10.0;
+    }
+
+    const lowOdds = validHorses.filter(h => getOdds(h) <= lowThreshold);
+    const midOdds = validHorses.filter(h => getOdds(h) > lowThreshold && getOdds(h) <= midThreshold);
+    const highOdds = validHorses.filter(h => getOdds(h) > midThreshold);
+
+    let cautious = lowOdds.length >= 2 ? findBestForStrategy(lowOdds, 2, 4) : null;
+    
+    let medium = null;
+    const mediumCandidates = [];
+    if (lowOdds.length > 1) mediumCandidates.push(lowOdds[1]);
+    if (midOdds.length > 0) mediumCandidates.push(...midOdds.slice(0, 2));
+    if (highOdds.length > 0) mediumCandidates.push(highOdds[0]);
+    if (mediumCandidates.length >= 2) medium = findBestForStrategy(mediumCandidates, 2, 4);
+    
+    let bold = null;
+    if (highOdds.length >= 2) {
+      bold = findBestForStrategy(highOdds, 2, 3);
+    } else if (highOdds.length === 1 && midOdds.length >= 1) {
+      const boldCandidates = [...highOdds, ...midOdds.slice(0, 2)];
+      bold = findBestForStrategy(boldCandidates, 2, 3);
+    }
+
+    const bestOverall = findBestForStrategy(validHorses, 2, 4);
+    if (!cautious && bestOverall) cautious = {...bestOverall};
+    if (!medium && bestOverall) medium = {...bestOverall};
+    if (!bold && bestOverall) bold = {...bestOverall};
+
+    return { cautious, medium, bold };
+  }
+
+  function renderStrategies() {
+    const strategies = generateStrategies();
+    const container = document.getElementById('strategiesContainer');
+    const raceName = getRaceName();
+    
+    let bestProfit = 0;
+    ['cautious', 'medium', 'bold'].forEach(key => {
+      if (strategies[key]) bestProfit = Math.max(bestProfit, strategies[key].profit);
+    });
+    document.getElementById('bestProfit').innerText = `$${Math.round(bestProfit)}`;
+
+    let html = '';
+    
+    // Cautious Card
+    html += buildStrategyCard('cautious', strategies.cautious, '🛡️', 'Safe play', '#3b82f6', raceName);
+    // Medium Card
+    html += buildStrategyCard('medium', strategies.medium, '⚖️', 'Balanced', '#f59e0b', raceName);
+    // Bold Card
+    html += buildStrategyCard('bold', strategies.bold, '🎲', 'Adventurous', '#f97316', raceName);
+    
+    container.innerHTML = html;
+
+    // Add click handlers for strategy cards
+    document.querySelectorAll('.strategy-card').forEach(card => {
+      card.addEventListener('click', function(e) {
+        if (e.target.tagName === 'BUTTON') return;
+        const strategyKey = this.classList[1];
+        selectStrategy(strategies[strategyKey], strategyKey);
+      });
+    });
+
+    // Add select button handlers
+    ['cautious', 'medium', 'bold'].forEach(key => {
+      if (strategies[key]) {
+        const btn = document.getElementById(`select-${key}`);
+        if (btn) {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            selectStrategy(strategies[key], key);
+          });
+        }
+      }
+    });
+  }
+
+  function buildStrategyCard(key, strategy, icon, desc, color, raceName) {
+    if (!strategy) {
+      return `
+        <div class="strategy-card" style="opacity: 0.5; border-left-color: #cbd5e1;">
+          <div class="strategy-icon">${icon}</div>
+          <div class="strategy-name" style="text-transform: capitalize;">${key}</div>
+          <div class="strategy-desc">${desc}</div>
+          <div style="color: #94a3b8; text-align: center; padding: 20px 0;">
+            No profitable combo
+          </div>
+        </div>
+      `;
+    }
+
+    let horseListHtml = '';
+    strategy.stakes.forEach(item => {
+      horseListHtml += `
+        <div class="horse-list-item">
+          <span><strong>H${item.horse.number}</strong> ${truncateName(item.horse.name) || ''}</span>
+          <span>$${item.odds.toFixed(2)}</span>
+        </div>
+      `;
+    });
+
+    return `
+      <div class="strategy-card ${key}">
+        <div class="strategy-icon">${icon}</div>
+        <div class="strategy-name" style="text-transform: capitalize;">${key}</div>
+        <div class="strategy-desc">${desc}</div>
+        <div class="horse-list">${horseListHtml}</div>
+        <div class="profit-box">
+          <div style="font-size:12px;">Profit if wins</div>
+          <div class="profit-amount">$${strategy.profit.toFixed(2)}</div>
+        </div>
+        <button class="select-btn" id="select-${key}" style="width:100%; background:${color}; color:white; border:none; border-radius:40px; padding:12px; font-weight:600; cursor:pointer;">
+          Select for ${raceName}
+        </button>
+      </div>
+    `;
+  }
+
+  function selectStrategy(strategy, key) {
+    selectedStrategy = { ...strategy, key };
+    const panel = document.getElementById('selectedPanel');
+    
+    let stakesHtml = '';
+    strategy.stakes.forEach(item => {
+      stakesHtml += `
+        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
+          <span><strong>H${item.horse.number}</strong> ${truncateName(item.horse.name) || ''} ($${item.odds.toFixed(2)})</span>
+          <span><strong>$${item.stake.toFixed(2)}</strong></span>
+        </div>
+      `;
+    });
+
+    panel.innerHTML = `
+      <div style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">
+        ✅ ${getRaceName()} · ${key.charAt(0).toUpperCase() + key.slice(1)} Strategy
+      </div>
+      <div style="background: white; border-radius: 16px; padding: 16px; margin-bottom: 16px;">
+        <div style="font-weight:600; margin-bottom:8px;">💰 Spread your $${totalBudget}:</div>
+        ${stakesHtml}
+        <div style="border-top: 2px solid #e2e8f0; margin-top: 8px; padding-top: 8px;">
+          <div style="display: flex; justify-content: space-between;">
+            <span>Total bet:</span>
+            <span><strong>$${strategy.totalStake.toFixed(2)}</strong></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; color: #059669;">
+            <span>Return if wins:</span>
+            <span><strong>$${strategy.returnIfWins.toFixed(2)}</strong></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; color: #059669;">
+            <span>Profit:</span>
+            <span><strong>$${strategy.profit.toFixed(2)}</strong></span>
+          </div>
+        </div>
+      </div>
+      <button class="save-bet-btn" id="saveBetBtn">
+        💾 Save This Bet to Journal
+      </button>
+    `;
+    panel.style.display = 'block';
+
+    document.getElementById('saveBetBtn').addEventListener('click', saveBetToJournal);
+  }
+
+  // ==================== JOURNAL FUNCTIONS ====================
+  function getJournal() {
+    return JSON.parse(localStorage.getItem('weekendPunterJournal') || '[]');
+  }
+
+  function saveJournal(journal) {
+    localStorage.setItem('weekendPunterJournal', JSON.stringify(journal));
+    renderJournal();
+  }
+
+  function saveBetToJournal() {
+    if (!selectedStrategy) {
+      showToast('Select a strategy first');
+      return;
+    }
+
+    const journal = getJournal();
+    const bet = {
+      id: Date.now(),
+      date: new Date().toLocaleDateString('en-AU'),
+      dateTime: new Date().toISOString(),
+      race: getRaceName(),
+      strategy: selectedStrategy.key,
+      horses: selectedStrategy.horses.map(h => ({
+        number: h.number,
+        name: h.name || `Horse ${h.number}`,
+        odds: getOdds(h)
+      })),
+      stake: selectedStrategy.totalStake,
+      potentialReturn: selectedStrategy.returnIfWins,
+      potentialProfit: selectedStrategy.profit,
+      status: 'pending', // pending, won, lost
+      actualReturn: null,
+      actualProfit: null
+    };
+
+    journal.unshift(bet);
+    saveJournal(journal);
+    showToast('✅ Bet saved to journal!');
+    
+    // Check fun limit
+    if (funLimitActive) {
+      funUsed += selectedStrategy.totalStake;
+      saveFunLimit();
+      updateFunLimitDisplay();
+    }
+  }
+
+  function markAsWon(betId, actualReturn) {
+    const journal = getJournal();
+    const bet = journal.find(b => b.id === betId);
+    
+    if (bet) {
+      bet.status = 'won';
+      bet.actualReturn = actualReturn;
+      bet.actualProfit = (actualReturn - bet.stake).toFixed(2);
+      saveJournal(journal);
+      showToast(`💰 Won! Profit: $${bet.actualProfit}`);
+    }
+  }
+
+  function markAsLost(betId) {
+    const journal = getJournal();
+    const bet = journal.find(b => b.id === betId);
+    
+    if (bet) {
+      bet.status = 'lost';
+      bet.actualReturn = 0;
+      bet.actualProfit = (-bet.stake).toFixed(2);
+      saveJournal(journal);
+      showToast(`😢 Lost: -$${bet.stake.toFixed(2)}`);
+    }
+  }
+
+  function deleteBet(betId) {
+    let journal = getJournal();
+    journal = journal.filter(b => b.id !== betId);
+    saveJournal(journal);
+    showToast('Bet removed');
+  }
+
+  function clearJournal() {
+    if (confirm('Clear all journal entries?')) {
+      localStorage.removeItem('weekendPunterJournal');
+      renderJournal();
+      showToast('Journal cleared');
+    }
+  }
+
+  function exportJournal() {
+    const journal = getJournal();
+    if (journal.length === 0) {
+      showToast('No entries to export');
+      return;
+    }
+
+    let text = 'WEEKEND PUNTER JOURNAL\n';
+    text += '=====================\n\n';
+    
+    journal.forEach(bet => {
+      text += `${bet.date} - ${bet.race}\n`;
+      text += `Strategy: ${bet.strategy}\n`;
+      text += `Horses: ${bet.horses.map(h => `H${h.number}`).join(', ')}\n`;
+      text += `Stake: $${bet.stake.toFixed(2)}\n`;
+      if (bet.status === 'won') {
+        text += `Result: WON - Return $${bet.actualReturn} (Profit $${bet.actualProfit})\n`;
+      } else if (bet.status === 'lost') {
+        text += `Result: LOST - Loss $${bet.stake.toFixed(2)}\n`;
+      } else {
+        text += `Result: PENDING\n`;
+      }
+      text += '---------------------\n';
+    });
+
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('📋 Journal copied to clipboard');
+    });
+  }
+
+  function renderJournal() {
+    const journal = getJournal();
+    const entriesDiv = document.getElementById('journalEntries');
+    const emptyDiv = document.getElementById('emptyJournal');
+    const chartContainer = document.getElementById('chartContainer');
+    
+    // Update summary
+    const total = journal.length;
+    const wins = journal.filter(b => b.status === 'won').length;
+    const losses = journal.filter(b => b.status === 'lost').length;
+    const pending = journal.filter(b => b.status === 'pending').length;
+    
+    const totalProfit = journal.reduce((sum, b) => sum + (parseFloat(b.actualProfit) || 0), 0);
+    const winRate = total > 0 ? ((wins / (wins + losses)) * 100).toFixed(1) : 0;
+    
+    document.getElementById('totalBets').innerText = total;
+    document.getElementById('totalWins').innerText = wins;
+    document.getElementById('totalLosses').innerText = losses;
+    document.getElementById('winRate').innerText = (wins + losses) > 0 ? `${winRate}%` : '0%';
+    
+    const profitEl = document.getElementById('totalProfit');
+    profitEl.innerText = `$${totalProfit.toFixed(2)}`;
+    profitEl.className = totalProfit >= 0 ? 'summary-value profit' : 'summary-value loss';
+    
+    // Show chart if at least 1 bet
+    if (journal.length > 0) {
+      chartContainer.style.display = 'block';
+      renderChart(journal);
+    } else {
+      chartContainer.style.display = 'none';
+    }
+    
+    // Render entries
+    if (journal.length === 0) {
+      entriesDiv.innerHTML = '';
+      emptyDiv.style.display = 'block';
+      return;
+    }
+    
+    emptyDiv.style.display = 'none';
+    
+    let html = '';
+    journal.forEach(bet => {
+      const horseList = bet.horses.map(h => `H${h.number}`).join(', ');
+      const statusClass = bet.status === 'won' ? 'result-win' : (bet.status === 'lost' ? 'result-loss' : '');
+      
+      html += `
+        <div class="bet-entry">
+          <div class="bet-header">
+            <span class="bet-date">${bet.date}</span>
+            <span class="bet-race">${bet.race}</span>
+          </div>
+          <div class="bet-details">
+            <span class="bet-horses">${horseList}</span>
+            <span class="bet-stake">Stake: $${bet.stake.toFixed(2)}</span>
+            ${bet.status === 'pending' ? `<span>Potential: $${bet.potentialProfit.toFixed(2)}</span>` : ''}
+          </div>
+    `;
+      
+      if (bet.status === 'pending') {
+        html += `
+          <div class="bet-actions">
+            <input type="number" id="return-${bet.id}" class="return-input" value="${bet.potentialReturn.toFixed(2)}" step="0.1" min="0" placeholder="Return">
+            <button class="win-btn" onclick="window.markAsWon(${bet.id}, parseFloat(document.getElementById('return-${bet.id}').value))">✅ Won</button>
+            <button class="loss-btn" onclick="window.markAsLost(${bet.id})">❌ Lost</button>
+            <button class="journal-btn" onclick="window.deleteBet(${bet.id})" style="margin-left:auto;">🗑️</button>
+          </div>
+        `;
+      } else {
+        html += `
+          <div class="bet-actions">
+            <span class="bet-result ${statusClass}">
+              ${bet.status === 'won' ? `✅ Won $${bet.actualProfit}` : `❌ Lost $${bet.actualProfit}`}
+            </span>
+            <button class="journal-btn" onclick="window.deleteBet(${bet.id})" style="margin-left:auto;">🗑️</button>
+          </div>
+        `;
+      }
+      
+      html += `</div>`;
+    });
+    
+    entriesDiv.innerHTML = html;
+  }
+
+  function renderChart(journal) {
+    const chartBars = document.getElementById('chartBars');
+    const completed = journal.filter(b => b.status !== 'pending').slice(0, 10).reverse();
+    
+    if (completed.length === 0) {
+      chartBars.innerHTML = '<div style="text-align: center; color: #94a3b8; width:100%;">No completed bets yet</div>';
+      return;
+    }
+    
+    let runningTotal = 0;
+    const points = completed.map(bet => {
+      runningTotal += parseFloat(bet.actualProfit || 0);
+      return runningTotal;
+    });
+    
+    const max = Math.max(...points, 1);
+    const min = Math.min(...points, 0);
+    const range = max - min || 1;
+    
+    let barsHtml = '';
+    points.forEach((value, i) => {
+      const height = ((value - min) / range) * 120 + 30;
+      const barClass = value >= 0 ? 'positive' : 'negative';
+      barsHtml += `
+        <div style="display: flex; flex-direction: column; align-items: center; flex:1;">
+          <div class="chart-bar ${barClass}" style="height: ${height}px;"></div>
+          <div class="chart-label">${i+1}</div>
+        </div>
+      `;
+    });
+    
+    chartBars.innerHTML = barsHtml;
+  }
+
+  // ==================== FUN LIMIT FUNCTIONS ====================
+  function loadFunLimit() {
+    const saved = localStorage.getItem('weekendPunterFunLimit');
+    if (saved) {
+      const data = JSON.parse(saved);
+      funLimit = data.limit || 50;
+      funUsed = data.used || 0;
+      funLimitActive = true;
+      updateFunLimitDisplay();
+    }
+  }
+
+  function saveFunLimit() {
+    localStorage.setItem('weekendPunterFunLimit', JSON.stringify({
+      limit: funLimit,
+      used: funUsed,
+      week: getWeekNumber()
+    }));
+  }
+
+  function getWeekNumber() {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 1);
+    const diff = now - start;
+    const oneWeek = 604800000;
+    return Math.floor(diff / oneWeek);
+  }
+
+  function updateFunLimitDisplay() {
+    const statusDiv = document.getElementById('funLimitStatus');
+    const warningDiv = document.getElementById('funLimitWarning');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const remaining = funLimit - funUsed;
+    
+    if (funLimitActive) {
+      statusDiv.style.display = 'block';
+      statusDiv.innerHTML = `
+        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+          <span><strong>Limit:</strong> $${funLimit}</span>
+          <span><strong>Used:</strong> $${funUsed.toFixed(2)}</span>
+          <span><strong>Remaining:</strong> $${remaining.toFixed(2)}</span>
+          <button id="resetFunLimitBtn" style="background: #f1f5f9; border: none; border-radius: 40px; padding: 4px 12px;">Reset</button>
+        </div>
+        <div style="margin-top: 10px; height: 8px; background: #e2e8f0; border-radius: 8px;">
+          <div style="height:100%; width:${Math.min((funUsed/funLimit)*100, 100)}%; background:#ffc107; border-radius:8px;"></div>
+        </div>
+      `;
+      
+      if (remaining <= 0) {
+        warningDiv.style.display = 'block';
+        warningDiv.innerHTML = '⚠️ You\'ve reached your fun limit for the week!';
+        analyzeBtn.disabled = true;
+      } else {
+        warningDiv.style.display = 'none';
+        analyzeBtn.disabled = false;
+      }
+      
+      document.getElementById('resetFunLimitBtn').addEventListener('click', () => {
+        funLimitActive = false;
+        localStorage.removeItem('weekendPunterFunLimit');
+        updateFunLimitDisplay();
+        analyzeBtn.disabled = false;
+      });
+    } else {
+      statusDiv.style.display = 'none';
+      warningDiv.style.display = 'none';
+      analyzeBtn.disabled = false;
+    }
+  }
+
+  // ==================== UI BUILD ====================
+  function buildHorseGrid() {
+    let html = `
+      <div class="horse-grid">
+        <div class="grid-header">
+          <span>🏇 Enter your runners</span>
+          <button class="reset-btn" id="resetBtn">Reset</button>
+        </div>
+        <div class="headers-row">
+          <span class="header-number">#</span>
+          <span class="header-name">Name</span>
+          <span class="header-win">WIN $</span>
+          <span class="header-place">PLACE $</span>
+        </div>
+        <div class="horse-entries">
+    `;
+    
+    for (let i = 1; i <= CONFIG.maxHorses; i++) {
+      const horse = currentRace.horses.find(h => h.number === i);
+      const nameValue = horse.name || '';
+      const winValue = horse.winOdds !== null ? horse.winOdds : '';
+      const placeValue = horse.placeOdds !== null ? horse.placeOdds : '';
+      
+      html += `
+        <div class="horse-item">
+          <span class="horse-number">H${i}</span>
+          <input type="text" class="horse-name-input" value="${nameValue.replace(/"/g, '&quot;')}" 
+                 placeholder="name" maxlength="${CONFIG.nameMaxLength}" data-horse="${i}" data-field="name">
+          <input type="number" step="0.1" min="0" class="win-input" value="${winValue}" 
+                 placeholder="win" data-horse="${i}" data-field="win">
+          <input type="number" step="0.1" min="0" class="place-input" value="${placeValue}" 
+                 placeholder="place" data-horse="${i}" data-field="place">
+        </div>`;
+    }
+    html += `</div>`;
+    
+    html += `
+      <div style="margin-top: 20px;">
+        <label style="font-weight: 500;">My budget: $<input type="number" id="budgetInput" value="${totalBudget}" min="10" max="200" step="5"
+               style="width:80px; padding:8px; margin-left:8px; border:2px solid #059669; border-radius:40px; text-align:center;"></label>
+      </div>
+    `;
+    
+    return html;
+  }
+
+  function initialRender() {
+    const main = document.getElementById('mainContent');
+    main.innerHTML = buildHorseGrid();
+
+    // Race input listeners
+    document.getElementById('raceNumber').addEventListener('input', updateRaceDisplay);
+    document.getElementById('raceLocation').addEventListener('input', updateRaceDisplay);
+
+    // Horse input listeners
+    document.querySelectorAll('.horse-name-input, .win-input, .place-input').forEach(input => {
+      input.addEventListener('input', function(e) {
+        const horseNum = parseInt(this.dataset.horse);
+        const field = this.dataset.field;
+        let horse = currentRace.horses.find(h => h.number === horseNum);
+        
+        if (field === 'name') horse.name = this.value.substring(0, CONFIG.nameMaxLength);
+        else if (field === 'win') {
+          const val = parseFloat(this.value);
+          horse.winOdds = (isNaN(val) || val < 0) ? null : val;
+        } else if (field === 'place') {
+          const val = parseFloat(this.value);
+          horse.placeOdds = (isNaN(val) || val < 0) ? null : val;
+        }
+      });
+    });
+
+    // Budget input
+    document.getElementById('budgetInput').addEventListener('change', (e) => {
+      const val = parseFloat(e.target.value);
+      if (!isNaN(val) && val >= 10) {
+        totalBudget = val;
+        document.getElementById('totalBudget').innerText = `$${totalBudget}`;
+      }
+    });
+
+    // Reset button
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      currentRace.horses.forEach(h => {
+        h.name = '';
+        h.winOdds = null;
+        h.placeOdds = null;
+      });
+      document.querySelectorAll('.horse-name-input').forEach(inp => inp.value = '');
+      document.querySelectorAll('.win-input').forEach(inp => inp.value = '');
+      document.querySelectorAll('.place-input').forEach(inp => inp.value = '');
+      document.getElementById('strategiesContainer').innerHTML = '';
+      document.getElementById('selectedPanel').style.display = 'none';
+      showToast('All cleared');
+    });
+  }
+
+  function setupToggle() {
+    const placeBtn = document.getElementById('placeToggle');
+    const winBtn = document.getElementById('winToggle');
+
+    placeBtn.addEventListener('click', () => {
+      betType = 'place';
+      placeBtn.classList.add('active');
+      winBtn.classList.remove('active');
+      document.getElementById('strategiesContainer').innerHTML = '';
+      document.getElementById('selectedPanel').style.display = 'none';
+    });
+
+    winBtn.addEventListener('click', () => {
+      betType = 'win';
+      winBtn.classList.add('active');
+      placeBtn.classList.remove('active');
+      document.getElementById('strategiesContainer').innerHTML = '';
+      document.getElementById('selectedPanel').style.display = 'none';
+    });
+  }
+
+  // ==================== INIT ====================
+  window.onload = function() {
+    initialRender();
+    setupToggle();
+    updateRaceDisplay();
+    loadFunLimit();
+    renderJournal();
+
+    // Analyze button
+    document.getElementById('analyzeBtn').addEventListener('click', renderStrategies);
+
+    // Fun limit button
+    document.getElementById('setFunLimitBtn').addEventListener('click', () => {
+      const amount = parseFloat(document.getElementById('funLimitAmount').value);
+      if (!isNaN(amount) && amount >= 10) {
+        funLimit = amount;
+        funUsed = 0;
+        funLimitActive = true;
+        saveFunLimit();
+        updateFunLimitDisplay();
+        showToast(`🎮 Fun limit set to $${amount}`);
+      }
+    });
+
+    // Journal buttons
+    document.getElementById('exportJournalBtn').addEventListener('click', exportJournal);
+    document.getElementById('clearJournalBtn').addEventListener('click', clearJournal);
+
+    // Expose functions globally for onclick handlers
+    window.markAsWon = markAsWon;
+    window.markAsLost = markAsLost;
+    window.deleteBet = deleteBet;
+  };
+})();
+</script>
+</body>
+</html>
